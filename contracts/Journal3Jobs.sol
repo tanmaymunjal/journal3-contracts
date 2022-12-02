@@ -20,6 +20,8 @@ struct Job {
     bool is_active;
     address closing_indexer;
     bool gasless_experience;
+
+    address root;
 }
 
 contract Journal3Jobs is Ownable{
@@ -35,9 +37,11 @@ contract Journal3Jobs is Ownable{
         jou = IERC20(0x5fE94247a9d3f9FE0a0c470Fb5B81C4076C0e12D);
     }
 
-    function createJob(bytes32 metadata_ipfs, address[] memory qualifications, uint16[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size) public returns(bool){
+    function createJob(bytes32 metadata_ipfs, address[] memory qualifications, uint16[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, address root) public returns(bool){
         Job storage tempJob = all_jobs[job_cnt];
         tempJob.metadata_ipfs = metadata_ipfs;
+        
+        tempJob.root = root;
 
         for (uint i=0; i < checkpoint_size; i++){
             tempJob.candidate_profiles[checkpoints[i].checkpoint_addr] = checkpoints[i];
@@ -76,6 +80,24 @@ contract Journal3Jobs is Ownable{
         // Run a shallow search on the decision tree, during each iteration check if node is a checkpoint and the next check fails
         // If it does break loop and return
         // Also at each iteration log the amount of JOU to be rewarded to each person
+
+        Job memory job = jobs[idx];
+
+        // we need the root of the tree to start the search. For now, taking it in createJob function
+        address root = job.root;
+
+        address nextNodes = job.qualifications[root];
+
+        for (uint i = 0; i < nextNodes.length; i++)) {
+            address storage currentSkillLNFT = nextNodes[i];
+
+            // TODO: check if currentSkillNFT is a checkpoint
+            if (currentSkillNFT.isCheckpoint()) {
+                job.candidate_profiles[currentSkilLNFT].candidates.push(msg.sender);
+            }
+
+        }
+        // TODO: How to get updated nextNodes? Shold we use queue to go through the decision truee?
     } 
 
     function close_job(uint idx) onlyOwner public returns(bool) {
@@ -89,5 +111,3 @@ contract Journal3Jobs is Ownable{
     // claim_loyalties
 
      
-
-}
