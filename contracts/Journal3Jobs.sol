@@ -3,6 +3,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 struct Checkpoints {
@@ -17,18 +18,21 @@ struct Job {
     mapping(address=>Checkpoints) candidate_profiles;
     uint256 jou_staked;
     bool is_active;
+    address closing_indexer;
+    bool gasless_experience;
 }
 
 contract Journal3Jobs is Ownable{
 
-    // address indexer_wallet;
-    // Job[] all_jobs;
     uint job_cnt;
-    mapping (uint => Job) all_jobs;
-
+    mapping (uint => Job) public all_jobs;
+    
+    event staking_successful(uint idx, uint amount);
+    IERC20 public jou;
 
     constructor(){
         job_cnt = 0;
+        jou = IERC20(0x5fE94247a9d3f9FE0a0c470Fb5B81C4076C0e12D);
     }
 
     function createJob(bytes32 metadata_ipfs, address[] memory qualifications, uint16[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size) public returns(bool){
@@ -56,11 +60,33 @@ contract Journal3Jobs is Ownable{
 
     }
 
-    // function stake_jou_job()
-    // function apply_job()
-    // function close_job()
+    function stake_jou_job(uint idx, uint amount) public {
+        require(amount > 0, "InvalidAmountException");
+        uint256 allowance = jou.allowance(msg.sender, address(this));
+        require(allowance >= amount, "AllowanceException");
+        jou.transferFrom(msg.sender, address(this), amount);
+        payable(msg.sender).transfer(amount);
+        all_jobs[idx].jou_staked += amount;
+        emit staking_successful(idx, amount);
 
+    }
+    
+    function apply_job(uint idx) public {
+        // all_jobs[]
+        // Run a shallow search on the decision tree, during each iteration check if node is a checkpoint and the next check fails
+        // If it does break loop and return
+        // Also at each iteration log the amount of JOU to be rewarded to each person
+    } 
 
+    function close_job(uint idx) onlyOwner public returns(bool) {
+        if(all_jobs[idx].is_active == true){
+            all_jobs[idx].is_active = false;
+            return true;
+        }
+        return false;
+    }
+
+    // claim_loyalties
 
      
 
