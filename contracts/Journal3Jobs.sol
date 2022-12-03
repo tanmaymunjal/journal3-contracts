@@ -4,40 +4,43 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 
 struct Checkpoints {
-    address checkpoint_addr;
+    uint checkpoint_addr;
     string checkpoint_name;
     address[] candidates;
 }
 
 struct Job {
     bytes32 metadata_ipfs;
-    mapping(address=>address[]) qualifications;
-    mapping(address=>Checkpoints) candidate_profiles;
+    mapping(uint=>uint[]) qualifications;
+    mapping(uint=>Checkpoints) candidate_profiles;
     uint256 jou_staked;
     bool is_active;
     address closing_indexer;
     bool gasless_experience;
-
-    address root;
+    uint root;
 }
 
 contract Journal3Jobs is Ownable{
 
     uint job_cnt;
     mapping (uint => Job) public all_jobs;
+    mapping (address=>uint) skill_creator_rewards;
     
     event staking_successful(uint idx, uint amount);
-    IERC20 public jou;
+    IERC20 jou;
+    IERC1155 skills_repo;
 
-    constructor(){
+    constructor(address jou_address, address skill_std){
         job_cnt = 0;
-        jou = IERC20(0x5fE94247a9d3f9FE0a0c470Fb5B81C4076C0e12D);
+        jou = IERC20(jou_address);
+        skills_repo = IERC1155(skill_std);
     }
 
-    function createJob(bytes32 metadata_ipfs, address[] memory qualifications, uint16[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, address root) public returns(bool){
+    function createJob(bytes32 metadata_ipfs, uint[] memory qualifications, uint[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, uint root, address closing_indexer) public returns(bool){
         Job storage tempJob = all_jobs[job_cnt];
         tempJob.metadata_ipfs = metadata_ipfs;
         
@@ -56,7 +59,7 @@ contract Journal3Jobs is Ownable{
         }
         tempJob.is_active = false;
         tempJob.jou_staked = 0;
-
+        tempJob.closing_indexer = closing_indexer;
         job_cnt++;
 
         return true;
@@ -71,36 +74,34 @@ contract Journal3Jobs is Ownable{
         jou.transferFrom(msg.sender, address(this), amount);
         payable(msg.sender).transfer(amount);
         all_jobs[idx].jou_staked += amount;
+        all_jobs[idx].is_active = true;
         emit staking_successful(idx, amount);
 
     }
     
     function apply_job(uint idx) public {
-        // all_jobs[]
-        // Run a shallow search on the decision tree, during each iteration check if node is a checkpoint and the next check fails
-        // If it does break loop and return
-        // Also at each iteration log the amount of JOU to be rewarded to each person
+        require(all_jobs[idx].is_active==true, "Job is not open yet");
+        require(all_jobs[idx].jou_staked!=0, "Job not accepting more applicants");
 
-        Job memory job = jobs[idx];
-
-        // we need the root of the tree to start the search. For now, taking it in createJob function
-        address root = job.root;
-
-        address nextNodes = job.qualifications[root];
-
-        for (uint i = 0; i < nextNodes.length; i++)) {
-            address storage currentSkillLNFT = nextNodes[i];
-
-            // TODO: check if currentSkillNFT is a checkpoint
-            if (currentSkillNFT.isCheckpoint()) {
-                job.candidate_profiles[currentSkilLNFT].candidates.push(msg.sender);
+        uint currnode = all_jobs[idx].root;
+        
+        while (currnode!=0){
+            if (skills_repo.balanceOf(msg.sender, currnode)==1){
+                currnode = all_jobs[idx].qualifications[currnode][0];
+                if(all_jobs[idx].candidate_profiles[currnode].checkpoint_addr==currnode){
+                    all_jobs[idx].candidate_profiles[currnode].candidates.push(msg.sender);
+                }
+                // skill_creation_fees = all_jobs[idx].jou_staked/400000;
+                // skill_creator_rewards[skills_repo.get_creator_token_id_map(currnode)] += ;
             }
-
+            else{
+                currnode = all_jobs[idx].qualifications[currnode][1];
+            }
         }
-        // TODO: How to get updated nextNodes? Shold we use queue to go through the decision truee?
     } 
 
-    function close_job(uint idx) onlyOwner public returns(bool) {
+    function close_job(uint idx) public returns(bool) {
+        require(msg.sender==owner()	|| msg.sender==all_jobs[idx].closing_indexer, "Unauthorized Closer");
         if(all_jobs[idx].is_active == true){
             all_jobs[idx].is_active = false;
             return true;
@@ -108,6 +109,14 @@ contract Journal3Jobs is Ownable{
         return false;
     }
 
-    // claim_loyalties
+    function claim_royalties_skill_creator() public {
+        jou.transfer(msg.sender, skill_creator_rewards[msg.sender]);
+        skill_creator_rewards[msg.sender] = 0;
+    }
+
+    // function claim_reward_validator() public {
+
+    // }
 
      
+}

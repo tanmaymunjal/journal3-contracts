@@ -8,6 +8,7 @@ import "./DataOnboarderSigner.sol";
 contract DataOnboarder is Ownable, DataOnboarderSigner{
     
     mapping(address=>mapping(string=>string)) public add_to_source_map;
+    mapping(string=>mapping(string=>address)) public source_to_add_map;
     address router_creator;
 
     constructor() DataOnboarderSigner("journal3.com", "1"){
@@ -18,6 +19,7 @@ contract DataOnboarder is Ownable, DataOnboarderSigner{
         require(router_creator == getSigner(verified_data_source), "Incorrectly signed data source verification request");
         require(bytes(add_to_source_map[msg.sender][verified_data_source.platform_name]).length==0, "Data Source Already Verified");
         add_to_source_map[msg.sender][verified_data_source.platform_name] = verified_data_source.profile_uid;
+        source_to_add_map[verified_data_source.platform_name][verified_data_source.profile_uid] = msg.sender;
     }
 
     function setRouterCreator(address _creator) external onlyOwner{

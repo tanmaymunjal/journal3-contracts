@@ -6,7 +6,18 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "jou_address",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "skill_std",
+						"type": "address"
+					}
+				],
 				"stateMutability": "nonpayable",
 				"type": "constructor"
 			},
@@ -30,6 +41,108 @@
 				"type": "event"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "idx",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "staking_successful",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "all_jobs",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "metadata_ipfs",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "jou_staked",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "is_active",
+						"type": "bool"
+					},
+					{
+						"internalType": "address",
+						"name": "closing_indexer",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "gasless_experience",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "root",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "idx",
+						"type": "uint256"
+					}
+				],
+				"name": "apply_job",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "claim_loyalties",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "idx",
+						"type": "uint256"
+					}
+				],
+				"name": "close_job",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "bytes32",
@@ -37,21 +150,21 @@
 						"type": "bytes32"
 					},
 					{
-						"internalType": "address[]",
+						"internalType": "uint256[]",
 						"name": "qualifications",
-						"type": "address[]"
+						"type": "uint256[]"
 					},
 					{
-						"internalType": "uint16[][]",
+						"internalType": "uint256[][]",
 						"name": "qualification_filtering",
-						"type": "uint16[][]"
+						"type": "uint256[][]"
 					},
 					{
 						"components": [
 							{
-								"internalType": "address",
+								"internalType": "uint256",
 								"name": "checkpoint_addr",
-								"type": "address"
+								"type": "uint256"
 							},
 							{
 								"internalType": "string",
@@ -77,6 +190,16 @@
 						"internalType": "uint256",
 						"name": "qualifications_size",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "root",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "closing_indexer",
+						"type": "address"
 					}
 				],
 				"name": "createJob",
@@ -106,6 +229,24 @@
 			{
 				"inputs": [],
 				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "idx",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "stake_jou_job",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -169,6 +310,22 @@
 				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
 			]
 		},
+		"@openzeppelin/contracts/token/ERC1155/IERC1155.sol": {
+			"keccak256": "0x6392f2cfe3a5ee802227fe7a2dfd47096d881aec89bddd214b35c5b46d3cd941",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://bd9c47a375639888e726a99da718890ba16d17d7ad9eacb0ccc892d46d1b3ee0",
+				"dweb:/ipfs/Qmb41W5RUjy2sWg49A2rMnxekSeEk6SvGyJL5tyCCSr7un"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34",
+				"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr"
+			]
+		},
 		"@openzeppelin/contracts/utils/Context.sol": {
 			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
 			"license": "MIT",
@@ -177,12 +334,20 @@
 				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
+		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+			"keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f",
+				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
+			]
+		},
 		"contracts/Journal3Jobs.sol": {
-			"keccak256": "0x970781ade7f5bf9c51c2aa9b9069673141899a4c23761a576737c21aaf9a9e91",
+			"keccak256": "0xef2a13189a3be6f6897dcbf728d6d353ed303b985843944de420df43af03048e",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://5b8c67acf5a6801f1e9b99aa50ddfd70a1ee27596242031fd0cda9721e02e818",
-				"dweb:/ipfs/QmNoMmAuKcQRu3KTVm4pXwYNTbmbmbWDb1aDEZ6Lch3T1x"
+				"bzz-raw://1d465e88da1c6796b7c2e2897e9d2f8d61fb9fdb6210666a7f621e82f8682059",
+				"dweb:/ipfs/QmYWjExHdYSod1Z8eGwu7aT6LHiHdZStok71j5yyKihAox"
 			]
 		}
 	},
