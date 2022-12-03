@@ -37,10 +37,9 @@ contract Journal3Jobs is Ownable{
     IERC20 jou;
     ISkillsRepo skills_repo;
 
-    constructor(address jou_address, address skill_std){
+    constructor(address jou_address){
         job_cnt = 0;
         jou = IERC20(jou_address);
-        skills_repo = ISkillsRepo(skill_std);
     }
 
     function createJob(string memory metadata_ipfs, uint[] memory qualifications, uint[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, uint root, address closing_indexer) public returns(bool){
