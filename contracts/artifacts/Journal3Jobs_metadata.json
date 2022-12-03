@@ -350,11 +350,11 @@
 			]
 		},
 		"contracts/Journal3Jobs.sol": {
-			"keccak256": "0x0a50bd6a5751d826e0cef29b5d1b480b9ee53a384d49768a5be818efa1dfcfe5",
+			"keccak256": "0x39bc1e1abc961c23566076c5c899f16dc7135d04c032fa97c6662af1f719fc97",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://713e61aeed35ae27fde9d8b7421e84ac09f409498235eff46dbaff49313a1a04",
-				"dweb:/ipfs/QmZRR3UHd4aorU1oQQeaENNCCETznMEbaLv71m1svVnjvb"
+				"bzz-raw://056a9d2c834453a46b5b56a5cab6382323222317306870cf5f0ae3523a1edf2d",
+				"dweb:/ipfs/Qme1UA5xzp2CmnUEXuPfUzvJQxpT2ZNHZSGMq6qHLjoVVf"
 			]
 		}
 	},

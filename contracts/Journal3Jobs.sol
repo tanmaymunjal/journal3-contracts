@@ -59,6 +59,10 @@ contract Journal3Jobs is Ownable{
                     tempJob.qualifications[qualifications[i]].push(qualifications[j]);
                 }
             }
+            if(tempJob.qualifications[qualifications[i]].length == 0){
+                tempJob.qualifications[qualifications[i]].push(0);
+                tempJob.qualifications[qualifications[i]].push(0);
+            }
         }
         tempJob.is_active = false;
         tempJob.jou_staked = 0;
