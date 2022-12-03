@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract KaggleDataOracle is Ownable{
 
     struct RawData{
-        bytes32 ipfs;
+        string ipfs;
         bool isActive;
         address verifiedBy;
     }
@@ -38,7 +38,7 @@ contract KaggleDataOracle is Ownable{
         token = IERC20(_tokenAddress);
     }
     
-    function setRawData(address ad,bytes32 ipfs, bool isActive) public {
+    function setRawData(address ad,string memory ipfs, bool isActive) public {
         // require(msg.sender==owner() || msg.sender == ad,"You can only set for yourself");
         rawDataStore[ad] = RawData(ipfs,isActive,msg.sender);
            
