@@ -14,7 +14,7 @@ struct Checkpoints {
 }
 
 struct Job {
-    bytes32 metadata_ipfs;
+    string metadata_ipfs;
     mapping(uint=>uint[]) qualifications;
     mapping(uint=>Checkpoints) candidate_profiles;
     uint256 jou_staked;
@@ -40,7 +40,7 @@ contract Journal3Jobs is Ownable{
         skills_repo = IERC1155(skill_std);
     }
 
-    function createJob(bytes32 metadata_ipfs, uint[] memory qualifications, uint[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, uint root, address closing_indexer) public returns(bool){
+    function createJob(string memory metadata_ipfs, uint[] memory qualifications, uint[][] memory qualification_filtering, Checkpoints[] memory checkpoints, uint checkpoint_size, uint qualifications_size, uint root, address closing_indexer) public returns(bool){
         Job storage tempJob = all_jobs[job_cnt];
         tempJob.metadata_ipfs = metadata_ipfs;
         
