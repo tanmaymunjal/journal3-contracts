@@ -70,9 +70,14 @@
 				"name": "all_jobs",
 				"outputs": [
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "metadata_ipfs",
-						"type": "bytes32"
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "qualif_size",
+						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
@@ -118,7 +123,7 @@
 			},
 			{
 				"inputs": [],
-				"name": "claim_loyalties",
+				"name": "claim_royalties_skill_creator",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -132,22 +137,16 @@
 					}
 				],
 				"name": "close_job",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
+				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
 				"inputs": [
 					{
-						"internalType": "bytes32",
+						"internalType": "string",
 						"name": "metadata_ipfs",
-						"type": "bytes32"
+						"type": "string"
 					},
 					{
 						"internalType": "uint256[]",
@@ -342,12 +341,20 @@
 				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
 			]
 		},
-		"contracts/Journal3Jobs.sol": {
-			"keccak256": "0xef2a13189a3be6f6897dcbf728d6d353ed303b985843944de420df43af03048e",
+		"contracts/ISkillsRepo.sol": {
+			"keccak256": "0x2a54ba737885499d4c8c5a711282a995bb80ca091dd52c2e04170ffa2604fc85",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://1d465e88da1c6796b7c2e2897e9d2f8d61fb9fdb6210666a7f621e82f8682059",
-				"dweb:/ipfs/QmYWjExHdYSod1Z8eGwu7aT6LHiHdZStok71j5yyKihAox"
+				"bzz-raw://35876c969266652cfc7bfb5e58e8ef365e7499b52f7f8aaa92ebcdf520f51425",
+				"dweb:/ipfs/QmVVid6xgkw5eFcvuTgnL2Gv227fYfppJWkdxp7ZyaZ2RG"
+			]
+		},
+		"contracts/Journal3Jobs.sol": {
+			"keccak256": "0x0a50bd6a5751d826e0cef29b5d1b480b9ee53a384d49768a5be818efa1dfcfe5",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://713e61aeed35ae27fde9d8b7421e84ac09f409498235eff46dbaff49313a1a04",
+				"dweb:/ipfs/QmZRR3UHd4aorU1oQQeaENNCCETznMEbaLv71m1svVnjvb"
 			]
 		}
 	},
