@@ -27,13 +27,17 @@ struct Job {
 }
 
 contract Journal3Jobs is Ownable{
+    event JobCreate(uint jobid,address indexer);
+    event JobStake(uint jobid,uint amount);
+    event JobAcceptApplicant(uint jobid,address applicant);
+    event JobDeclineApplicant(uint jobid,address applicant);
+
 
     uint job_cnt;
     mapping (uint => Job) public all_jobs;
     mapping (address=>uint) skill_creator_rewards;
     mapping(address=>uint) oracle_reward_returns;
     
-    event staking_successful(uint idx, uint amount);
     IERC20 jou;
     ISkillsRepo skills_repo;
 
@@ -68,12 +72,11 @@ contract Journal3Jobs is Ownable{
         tempJob.closing_indexer = closing_indexer;
         tempJob.qual_list = qualifications;
         tempJob.qualif_size = qualifications_size;
+        emit JobCreate(job_cnt,closing_indexer);
         job_cnt++;
 
         return true;
-
-
-    }
+        }
 
     function stake_jou_job(uint idx, uint amount) public {
         require(amount > 0, "InvalidAmountException");
@@ -83,11 +86,11 @@ contract Journal3Jobs is Ownable{
         payable(msg.sender).transfer(amount);
         all_jobs[idx].jou_staked += amount;
         all_jobs[idx].is_active = true;
-        emit staking_successful(idx, amount);
+        emit JobStake(idx, amount);
 
     }
     
-    function apply_job(uint idx) public {
+    function apply_job(uint idx) public returns(bool) {
         require(all_jobs[idx].is_active==true, "Job is not open yet");
         require(all_jobs[idx].jou_staked!=0, "Job not accepting more applicants");
 
@@ -96,17 +99,21 @@ contract Journal3Jobs is Ownable{
         while (currnode!=0){
             if (skills_repo.balanceOf(msg.sender, currnode)==1){
                 currnode = all_jobs[idx].qualifications[currnode][0];
-                if(all_jobs[idx].candidate_profiles[currnode].checkpoint_addr==currnode){
-                    all_jobs[idx].candidate_profiles[currnode].candidates.push(msg.sender);
-                }
                 uint skill_creation_fees = all_jobs[idx].jou_staked/400000;
                 skill_creator_rewards[skills_repo.get_creator_token_id_map(currnode)] += skill_creation_fees;
                 all_jobs[idx].jou_staked -= skill_creation_fees;
+                if(all_jobs[idx].candidate_profiles[currnode].checkpoint_addr==currnode){
+                    all_jobs[idx].candidate_profiles[currnode].candidates.push(msg.sender);
+                        emit JobAcceptApplicant(idx,msg.sender);
+                        return true;
+                }
             }
             else{
                 currnode = all_jobs[idx].qualifications[currnode][1];
             }
         }
+         emit JobDeclineApplicant(idx,msg.sender);
+        return false;
     } 
 
     function close_job(uint idx) public {
