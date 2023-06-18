@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity  >=0.7.0 <0.9.0;
 
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./errors.sol";
 
 contract KaggleDataOracle is Ownable{
 
@@ -28,7 +29,7 @@ contract KaggleDataOracle is Ownable{
     mapping (address=>RawData) public rawDataStore;
     IERC20 public token;
        
-    function getStakeValue(address ad,string memory v2,string memory v3)public view returns(uint){
+    function getStakeValue(address ad,string calldata v2,string calldata v3)public view returns(uint){
         return userDataOracle[ad][v2][v3];
     }
 
@@ -38,15 +39,19 @@ contract KaggleDataOracle is Ownable{
         token = IERC20(_tokenAddress);
     }
     
-    function setRawData(address ad,string memory ipfs, bool isActive) public {
+    function setRawData(address ad,string calldata ipfs, bool isActive) public {
         // require(msg.sender==owner() || msg.sender == ad,"You can only set for yourself");
         rawDataStore[ad] = RawData(ipfs,isActive,msg.sender);
            
     }
        
-    function validateDataPoint( address ad,  string memory v2, string memory v3, uint val) public {
-        require(rawDataStore[ad].isActive ==true , "Raw Data not stored!");
-        require(val>0,"Value must be greator than 0");
+    function validateDataPoint( address ad,  string calldata v2, string calldata v3, uint val) public {
+        if(rawDataStore[ad].isActive ==false)
+            revert RawDataNotStored();
+
+        if(val<=0)
+           revert InvalidValidationFees();
+
         token.transferFrom(msg.sender,address(this),val);
         userDataOracle[ad][v2][v3]+=val;
         validatorSplits[msg.sender][ad][v2][v3]+=val;
@@ -55,17 +60,23 @@ contract KaggleDataOracle is Ownable{
         }
     }
        
-    function withdrawMoney(address ad,  string memory v2, string memory v3, uint val) public{
-        require(validatorSplits[msg.sender][ad][v2][v3]>=val,"Amount Exceeds Balance");
-        require(userDataOracle[ad][v2][v3]>=val,"Amount Exceeds Total Balance");
+    function withdrawMoney(address ad,  string calldata v2, string calldata v3, uint val) public{
+        if(validatorSplits[msg.sender][ad][v2][v3]<val)
+            revert WithdrawlAmountExceedsBalance(val);
+
+        if(userDataOracle[ad][v2][v3]<val)
+            revert WithdrawlAmountExceedsBalance(val);
+
         token.transfer(msg.sender,val);
         userDataOracle[ad][v2][v3]-=val;
         validatorSplits[msg.sender][ad][v2][v3]-=val;
     }
+    
     function return_self_addr() public view returns(address){
         return address(this);
     }
-    function fetch_dp_value(address job_seker_addr, string memory dp_label) external view returns(string memory){
+
+    function fetch_dp_value(address job_seker_addr, string calldata dp_label) external view returns(string memory){
         return mostFavoredDataOracle[job_seker_addr][dp_label].attributeValue;
     }
 }

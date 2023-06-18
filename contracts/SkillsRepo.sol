@@ -4,7 +4,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./IKaggleDataOracle.sol";
-
+import "./errors.sol";
 
 // use kaggle;
 // select address from notebooks where "tensorflow" in notebooks.frameworks group by address having count(*) > 5;
@@ -38,12 +38,14 @@ contract SkillsRepo is ERC1155{
     }
 
     function mint_skill(uint skillid) public {
-        require(_verify_mint(skillid, msg.sender)==true, "CredentialVerificationFailed");
+        if(_verify_mint(skillid, msg.sender)==false)
+              revert SkillVerificationFailed();
         _mint(msg.sender, skillid, 1, "");
     }
 
     function create_skill(address oracle, string[] memory validator_keys, string[][] memory validator_values, uint[] memory token_gating) public returns(bool) {
-        require(_validateVerifier(oracle, skill_id_last_ptr, validator_keys, validator_values, validator_keys.length, token_gating)==true, "Invalid Condition for creating skill");
+        if(_validateVerifier(oracle, skill_id_last_ptr, validator_keys, validator_values, validator_keys.length, token_gating)==false)
+            revert InvalidConditionForCreatingSkills();
         creator_token_id_map[skill_id_last_ptr] = msg.sender;
         skill_id_last_ptr++;
         return true;
@@ -52,8 +54,9 @@ contract SkillsRepo is ERC1155{
     function _validateVerifier(address oracle, uint token_ptr, string[] memory validator_data, string[][] memory validator_values, uint validator_size, uint[] memory token_gating) internal returns(bool) {
         token_id_verification_clause[token_ptr].oracle_data_src = IKaggleDataOracle(oracle);
         token_id_verification_clause[token_ptr].string_val_filter_keys = validator_data;
-        for(uint i=0; i<validator_size; i++){
+        for(uint i; i<validator_size;){
             token_id_verification_clause[token_ptr].string_val_filters[validator_data[i]][StringComparator.eq] =  validator_values[i];
+            unchecked { ++i; }
         }
         token_id_verification_clause[token_ptr].prev_token_gating = token_gating;
         return true;
@@ -61,13 +64,10 @@ contract SkillsRepo is ERC1155{
 
     function _verify_mint(uint skillid, address to_verify) internal view returns(bool){
         uint skill_length = token_id_verification_clause[skillid].string_val_filter_keys.length;
-        for(uint i=0; i< skill_length; i++){
-            require(
-                check_condn(
-                    token_id_verification_clause[skillid].string_val_filters[token_id_verification_clause[skillid].string_val_filter_keys[i]][StringComparator.eq],
-                    token_id_verification_clause[skillid].oracle_data_src.fetch_dp_value(to_verify, token_id_verification_clause[skillid].string_val_filter_keys[i])
-                )==true, "Return Verification Failed"
-            );
+        for(uint i; i< skill_length;){
+            if(check_condn(token_id_verification_clause[skillid].string_val_filters[token_id_verification_clause[skillid].string_val_filter_keys[i]][StringComparator.eq],token_id_verification_clause[skillid].oracle_data_src.fetch_dp_value(to_verify, token_id_verification_clause[skillid].string_val_filter_keys[i]))==false)
+                revert SkillMintVerificationFailed();
+            unchecked { ++i; }
         }
         return true;
     }
@@ -82,10 +82,11 @@ contract SkillsRepo is ERC1155{
 
     function check_condn(string[] memory a, string memory b) internal pure returns (bool){
         uint n = a.length;
-        for(uint i=0; i< n; i++){
+        for(uint i; i< n;){
             if(keccak256(abi.encodePacked(a[i])) != keccak256(abi.encodePacked(b))){
                 return false;
             }
+            unchecked { ++i; }
         }
         return true;
     }

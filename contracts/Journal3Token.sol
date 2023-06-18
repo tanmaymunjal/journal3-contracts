@@ -4,6 +4,7 @@
 pragma solidity ^0.8.3;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
+import "./errors.sol";
 
 contract Journal3Token is ERC20 {
 
@@ -16,7 +17,8 @@ contract Journal3Token is ERC20 {
 
     function requestTokens (address requestor , uint amount) external {
         
-        require(block.timestamp > lockTime[msg.sender], "lock time has not expired. Please try again later");
+        if(block.timestamp <= lockTime[msg.sender])
+           revert LockTimeExceeded();
 
         transfer(requestor, amount);
 

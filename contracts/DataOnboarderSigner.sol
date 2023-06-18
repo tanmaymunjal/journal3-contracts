@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
 contract DataOnboarderSigner is EIP712{
     
+    //Link of data source through which user data is acessed
     struct DataSourceLink{
         string profile_uid;
         string platform_name;
@@ -17,11 +18,13 @@ contract DataOnboarderSigner is EIP712{
         
     }
 
-    function getSigner(DataSourceLink memory result) public view returns(address){
+    //gets public key of signer
+    function getSigner(DataSourceLink calldata result) public view returns(address){
         return _verify(result);
     }
-  
-    function _hash(DataSourceLink memory result) internal view returns (bytes32) {
+    
+    //create a unique hash given the Datasource link, and user's public key
+    function _hash(DataSourceLink calldata result) internal view returns (bytes32) {
         return _hashTypedDataV4(
             keccak256(
                 abi.encode(
@@ -33,8 +36,10 @@ contract DataOnboarderSigner is EIP712{
             )
         );
     }
-
-    function _verify(DataSourceLink memory result) internal view returns (address) {
+    
+    //verifiies the hash of data and signarure of memory to verify that the data is valid and unchanged and returns the 
+    // public key of user 
+    function _verify(DataSourceLink calldata result) internal view returns (address) {
         bytes32 digest = _hash(result);
         return ECDSA.recover(digest, result.signature);
     }
